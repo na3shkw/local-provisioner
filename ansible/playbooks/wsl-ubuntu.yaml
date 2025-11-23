@@ -61,7 +61,7 @@
           - rename
           - shellcheck
           - stow
-          - tftp
+          - tftp-hpa
           - vim
           - wget
         state: present
