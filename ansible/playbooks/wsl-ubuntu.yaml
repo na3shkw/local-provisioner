@@ -1,0 +1,207 @@
+---
+- name: Setup WSL Ubuntu environment
+  hosts: localhost
+  connection: local
+  become: true
+
+  vars:
+    user_name: "{{ ansible_user_id }}"
+    user_home: "/home/{{ ansible_user_id }}"
+    keyrings_dir: /etc/apt/keyrings
+
+  tasks:
+    # ========================================
+    # WSL Configuration
+    # ========================================
+    - name: Check if running in WSL
+      ansible.builtin.command: grep -qi microsoft /proc/version
+      register: is_wsl
+      changed_when: false
+      failed_when: false
+
+    - name: Configure WSL systemd support
+      when: is_wsl.rc == 0
+      block:
+        - name: Create /etc/wsl.conf if it doesn't exist
+          ansible.builtin.file:
+            path: /etc/wsl.conf
+            state: touch
+            mode: '0644'
+
+        - name: Enable systemd in WSL
+          community.general.ini_file:
+            path: /etc/wsl.conf
+            section: boot
+            option: systemd
+            value: "true"
+            mode: '0644'
+          notify: Notify WSL restart
+
+    # ========================================
+    # System Package Installation
+    # ========================================
+    - name: Update apt cache
+      ansible.builtin.apt:
+        update_cache: true
+        cache_valid_time: 3600
+
+    - name: Install basic development tools
+      ansible.builtin.apt:
+        name:
+          - aria2
+          - build-essential
+          - ca-certificates
+          - curl
+          - ffmpeg
+          - fzf
+          - git
+          - gnupg
+          - jq
+          - lsb-release
+          - rename
+          - shellcheck
+          - stow
+          - tftp
+          - vim
+          - wget
+        state: present
+
+    - name: Create directory for third-party GPG keys
+      ansible.builtin.file:
+        path: "{{ keyrings_dir }}"
+        state: directory
+        mode: '0755'
+
+    # ========================================
+    # GitHub CLI Installation (Official Repository)
+    # https://github.com/cli/cli/blob/trunk/docs/install_linux.md#debian
+    # ========================================
+    - name: Add GitHub CLI GPG key
+      ansible.builtin.get_url:
+        url: https://cli.github.com/packages/githubcli-archive-keyring.gpg
+        dest: "{{ keyrings_dir }}/githubcli-archive-keyring.gpg"
+        mode: '0644'
+
+    - name: Add GitHub CLI repository
+      ansible.builtin.apt_repository:
+        repo: "deb [arch=amd64 signed-by={{ keyrings_dir }}/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main"
+        state: present
+        filename: github-cli
+
+    - name: Install GitHub CLI
+      ansible.builtin.apt:
+        name: gh
+        state: present
+        update_cache: true
+
+    # ========================================
+    # Docker Installation (Official Repository)
+    # https://docs.docker.com/engine/install/ubuntu/
+    # ========================================
+    - name: Remove conflicting Docker packages
+      ansible.builtin.apt:
+        name:
+          - docker.io
+          - docker-compose
+          - docker-compose-v2
+          - docker-doc
+          - podman-docker
+          - containerd
+          - runc
+        state: absent
+      failed_when: false
+
+    - name: Add Docker GPG key
+      ansible.builtin.get_url:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        dest: "{{ keyrings_dir }}/docker.asc"
+        mode: '0644'
+
+    - name: Add Docker repository
+      ansible.builtin.apt_repository:
+        repo: "deb [arch=amd64 signed-by={{ keyrings_dir }}/docker.asc] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
+        state: present
+        filename: docker
+
+    - name: Install Docker CE and related packages
+      ansible.builtin.apt:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+          - docker-buildx-plugin
+          - docker-compose-plugin
+        state: present
+        update_cache: true
+
+    # ========================================
+    # Docker Post-install Configuration
+    # https://docs.docker.com/engine/install/linux-postinstall/
+    # ========================================
+    - name: Ensure docker group exists
+      ansible.builtin.group:
+        name: docker
+        state: present
+
+    - name: Add user to docker group
+      ansible.builtin.user:
+        name: "{{ user_name }}"
+        groups: docker
+        append: true
+      notify: Notify docker group
+
+    # ========================================
+    # Docker Service Management
+    # ========================================
+    - name: Enable and start Docker service
+      ansible.builtin.systemd:
+        name: docker
+        enabled: true
+        state: started
+
+    # ========================================
+    # uv Installation (Astral Python Package Manager)
+    # https://docs.astral.sh/uv/getting-started/installation/
+    # ========================================
+    - name: Download and install uv
+      ansible.builtin.shell: set -o pipefail && curl -LsSf https://astral.sh/uv/install.sh | sh
+      args:
+        creates: "{{ user_home }}/.local/bin/uv"
+      environment:
+        HOME: "{{ user_home }}"
+      become_user: "{{ user_name }}"
+      become: true
+
+    # ========================================
+    # mise Installation and Configuration
+    # https://mise.jdx.dev/installing-mise.html
+    # ========================================
+    - name: Add mise GPG key
+      ansible.builtin.get_url:
+        url: https://mise.jdx.dev/gpg-key.pub
+        dest: "{{ keyrings_dir }}/mise-archive-keyring.pub"
+        mode: '0644'
+
+    - name: Add mise repository
+      ansible.builtin.apt_repository:
+        repo: "deb [signed-by={{ keyrings_dir }}/mise-archive-keyring.pub arch=amd64] https://mise.jdx.dev/deb stable main"
+        state: present
+        filename: mise
+
+    - name: Install mise
+      ansible.builtin.apt:
+        name: mise
+        state: present
+        update_cache: true
+
+  handlers:
+    - name: Notify WSL restart
+      ansible.builtin.debug:
+        msg: "WSL configuration updated. Please restart WSL by running 'wsl --shutdown' from Windows PowerShell for systemd to take effect."
+
+    - name: Notify docker group
+      ansible.builtin.debug:
+        msg: >
+          User '{{ user_name }}' has been added to the docker group.
+          Please log out and back in (or restart WSL) for this change to take effect.
+          After re-login, you can run docker commands without sudo.
