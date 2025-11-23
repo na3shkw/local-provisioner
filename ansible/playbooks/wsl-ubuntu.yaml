@@ -64,6 +64,7 @@
           - tftp-hpa
           - vim
           - wget
+          - wslu
         state: present
 
     - name: Create directory for third-party GPG keys
