@@ -6,6 +6,8 @@
 
 ## 実行方法
 
+### Ansibleによる環境構築
+
 1. 必要なAnsibleコレクションをインストールします。
     ```bash
     ansible-galaxy collection install -r requirements.yaml
@@ -17,4 +19,19 @@
 3. 問題がなければ実際に実行します。
     ```bash
     ansible-playbook ansible/playbooks/wsl-ubuntu.yaml
+    ```
+
+### dotfilesの配置（stow）
+
+1. dotfilesディレクトリに移動します。
+    ```bash
+    cd ~/ghq/github.com/na3shkw/local-provisioner/dotfiles
+    ```
+2. stowでシンボリックリンクを作成します。
+    ```bash
+    stow -t ~ wsl-ubuntu
+    ```
+3. シンボリックリンクを削除する場合は以下を実行します。
+    ```bash
+    stow -D -t ~ wsl-ubuntu
     ```

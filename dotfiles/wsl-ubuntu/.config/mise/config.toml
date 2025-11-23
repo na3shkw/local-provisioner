@@ -1,0 +1,4 @@
+[tools]
+nodejs = "24"
+golang = "1.25"
+ghq = "latest"
