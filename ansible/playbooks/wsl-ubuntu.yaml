@@ -65,6 +65,7 @@
           - vim
           - wget
           - wslu
+          - zsh
         state: present
 
     - name: Create directory for third-party GPG keys
