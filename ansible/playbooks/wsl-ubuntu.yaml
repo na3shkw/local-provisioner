@@ -64,6 +64,7 @@
           - tftp-hpa
           - vim
           - wget
+          - whois
           - wslu
           - zsh
         state: present

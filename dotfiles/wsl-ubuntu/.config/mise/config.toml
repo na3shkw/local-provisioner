@@ -2,3 +2,4 @@
 nodejs = "24"
 golang = "1.25"
 ghq = "latest"
+"github:icann/icann-rdap" = "latest"
