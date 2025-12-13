@@ -22,11 +22,17 @@
     - name: Configure WSL systemd support
       when: is_wsl.rc == 0
       block:
-        - name: Create /etc/wsl.conf if it doesn't exist
-          ansible.builtin.file:
+        - name: Check if /etc/wsl.conf exists
+          ansible.builtin.stat:
             path: /etc/wsl.conf
-            state: touch
+          register: wsl_conf
+
+        - name: Create /etc/wsl.conf
+          ansible.builtin.copy:
+            content: ""
+            dest: /etc/wsl.conf
             mode: '0644'
+          when: not wsl_conf.stat.exists
 
         - name: Enable systemd in WSL
           community.general.ini_file:
@@ -79,11 +85,17 @@
     # GitHub CLI Installation (Official Repository)
     # https://github.com/cli/cli/blob/trunk/docs/install_linux.md#debian
     # ========================================
+    - name: Check if GitHub CLI GPG key exists
+      ansible.builtin.stat:
+        path: "{{ keyrings_dir }}/githubcli-archive-keyring.gpg"
+      register: gh_gpg_key
+
     - name: Add GitHub CLI GPG key
       ansible.builtin.get_url:
         url: https://cli.github.com/packages/githubcli-archive-keyring.gpg
         dest: "{{ keyrings_dir }}/githubcli-archive-keyring.gpg"
         mode: '0644'
+      when: not gh_gpg_key.stat.exists
 
     - name: Add GitHub CLI repository
       ansible.builtin.apt_repository:
@@ -101,6 +113,11 @@
     # Docker Installation (Official Repository)
     # https://docs.docker.com/engine/install/ubuntu/
     # ========================================
+    - name: Check if Docker GPG key exists
+      ansible.builtin.stat:
+        path: "{{ keyrings_dir }}/docker.asc"
+      register: docker_gpg_key
+
     - name: Remove conflicting Docker packages
       ansible.builtin.apt:
         name:
@@ -119,6 +136,7 @@
         url: https://download.docker.com/linux/ubuntu/gpg
         dest: "{{ keyrings_dir }}/docker.asc"
         mode: '0644'
+      when: not docker_gpg_key.stat.exists
 
     - name: Add Docker repository
       ansible.builtin.apt_repository:
