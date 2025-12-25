@@ -182,20 +182,6 @@
         state: started
 
     # ========================================
-    # uv Installation (Astral Python Package Manager)
-    # https://docs.astral.sh/uv/getting-started/installation/
-    # ========================================
-    - name: Download and install uv
-      ansible.builtin.shell: set -o pipefail && curl -LsSf https://astral.sh/uv/install.sh | sh
-      args:
-        creates: "{{ user_home }}/.local/bin/uv"
-        executable: /bin/bash
-      environment:
-        HOME: "{{ user_home }}"
-      become_user: "{{ user_name }}"
-      become: true
-
-    # ========================================
     # mise Installation and Configuration
     # https://mise.jdx.dev/installing-mise.html
     # ========================================
