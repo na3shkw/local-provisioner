@@ -46,11 +46,6 @@
     # ========================================
     # System Package Installation
     # ========================================
-    - name: Update apt cache
-      ansible.builtin.apt:
-        update_cache: true
-        cache_valid_time: 3600
-
     - name: Install basic development tools
       ansible.builtin.apt:
         name:
@@ -75,6 +70,8 @@
           - wslu
           - zsh
         state: present
+        update_cache: true
+        cache_valid_time: 3600
 
     - name: Create directory for third-party GPG keys
       ansible.builtin.file:
@@ -109,6 +106,7 @@
         name: gh
         state: present
         update_cache: true
+        cache_valid_time: 3600
 
     # ========================================
     # Docker Installation (Official Repository)
@@ -155,6 +153,7 @@
           - docker-compose-plugin
         state: present
         update_cache: true
+        cache_valid_time: 3600
 
     # ========================================
     # Docker Post-install Configuration
@@ -202,6 +201,7 @@
         name: mise
         state: present
         update_cache: true
+        cache_valid_time: 3600
 
   handlers:
     - name: Notify WSL restart
