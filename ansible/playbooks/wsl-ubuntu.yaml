@@ -49,6 +49,7 @@
     - name: Install basic development tools
       ansible.builtin.apt:
         name:
+          - age
           - aria2
           - build-essential
           - ca-certificates
