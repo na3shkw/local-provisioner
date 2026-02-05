@@ -60,6 +60,10 @@
           - git
           - gnupg
           - jq
+          - libkrb5-dev
+          - libsecret-1-dev
+          - libx11-dev
+          - libxkbfile-dev
           - lsb-release
           - rename
           - shellcheck
