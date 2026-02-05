@@ -61,6 +61,8 @@
           - gnupg
           - jq
           - libkrb5-dev
+          - libnspr4
+          - libnss3
           - libsecret-1-dev
           - libx11-dev
           - libxkbfile-dev
