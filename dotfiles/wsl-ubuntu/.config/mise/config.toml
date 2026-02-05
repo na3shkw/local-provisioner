@@ -1,7 +1,8 @@
 [tools]
-nodejs = "24"
-golang = "1.25"
-ghq = "latest"
-uv = "latest"
-sops = "latest"
 "github:icann/icann-rdap" = "latest"
+claude = "latest"
+ghq = "latest"
+golang = "1.25"
+nodejs = "24"
+sops = "latest"
+uv = "latest"
