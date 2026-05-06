@@ -67,6 +67,7 @@
           - libx11-dev
           - libxkbfile-dev
           - lsb-release
+          - pdftk-java
           - rename
           - shellcheck
           - stow
