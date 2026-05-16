@@ -1,5 +1,6 @@
 [tools]
 "github:icann/icann-rdap" = "latest"
+"pipx:ansible-lint" = "26.4.0"
 ghq = "latest"
 golang = "1.25"
 nodejs = "24"

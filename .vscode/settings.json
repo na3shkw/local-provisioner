@@ -1,0 +1,4 @@
+{
+    "ansible.validation.lint.path": "$HOME/.local/share/mise/installs/pipx-ansible-lint/26.4.0/bin/ansible-lint",
+    "ansible.validation.lint.autoFixOnSave": true
+}
