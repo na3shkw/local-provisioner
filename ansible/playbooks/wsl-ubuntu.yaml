@@ -31,7 +31,7 @@
           ansible.builtin.copy:
             content: ""
             dest: /etc/wsl.conf
-            mode: '0644'
+            mode: "0644"
           when: not wsl_conf.stat.exists
 
         - name: Enable systemd in WSL
@@ -40,7 +40,7 @@
             section: boot
             option: systemd
             value: "true"
-            mode: '0644'
+            mode: "0644"
           notify: Notify WSL restart
 
     # ========================================
@@ -86,7 +86,7 @@
       ansible.builtin.file:
         path: "{{ keyrings_dir }}"
         state: directory
-        mode: '0755'
+        mode: "0755"
 
     # ========================================
     # GitHub CLI Installation (Official Repository)
@@ -101,7 +101,7 @@
       ansible.builtin.get_url:
         url: https://cli.github.com/packages/githubcli-archive-keyring.gpg
         dest: "{{ keyrings_dir }}/githubcli-archive-keyring.gpg"
-        mode: '0644'
+        mode: "0644"
       when: not gh_gpg_key.stat.exists
 
     - name: Add GitHub CLI repository
@@ -143,12 +143,13 @@
       ansible.builtin.get_url:
         url: https://download.docker.com/linux/ubuntu/gpg
         dest: "{{ keyrings_dir }}/docker.asc"
-        mode: '0644'
+        mode: "0644"
       when: not docker_gpg_key.stat.exists
 
     - name: Add Docker repository
       ansible.builtin.apt_repository:
-        repo: "deb [arch=amd64 signed-by={{ keyrings_dir }}/docker.asc] https://download.docker.com/linux/ubuntu {{ ansible_facts['distribution_release'] }} stable"
+        repo: |
+          "deb [arch=amd64 signed-by={{ keyrings_dir }}/docker.asc] https://download.docker.com/linux/ubuntu {{ ansible_facts['distribution_release'] }} stable"
         state: present
         filename: docker
 
@@ -197,7 +198,7 @@
       ansible.builtin.get_url:
         url: https://mise.jdx.dev/gpg-key.pub
         dest: "{{ keyrings_dir }}/mise-archive-keyring.pub"
-        mode: '0644'
+        mode: "0644"
 
     - name: Add mise repository
       ansible.builtin.apt_repository:
