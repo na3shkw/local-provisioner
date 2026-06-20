@@ -147,11 +147,16 @@
       when: not docker_gpg_key.stat.exists
 
     - name: Add Docker repository
-      ansible.builtin.apt_repository:
-        repo: |
-          "deb [arch=amd64 signed-by={{ keyrings_dir }}/docker.asc] https://download.docker.com/linux/ubuntu {{ ansible_facts['distribution_release'] }} stable"
+      ansible.builtin.deb822_repository:
+        name: docker
+        types: deb
+        uris: https://download.docker.com/linux/ubuntu
+        suites: "{{ ansible_facts['distribution_release'] }}"
+        components: stable
+        architectures: amd64
+        signed_by: "{{ keyrings_dir }}/docker.asc"
         state: present
-        filename: docker
+        install_python_debian: true
 
     - name: Install Docker CE and related packages
       ansible.builtin.apt:
