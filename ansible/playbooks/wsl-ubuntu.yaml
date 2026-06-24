@@ -193,26 +193,24 @@
     # Git Configuration
     # ========================================
     - name: Check git credential helpers
-      ansible.builtin.command:
-        cmd: git config --global --get-regexp "^credential\."
+      community.general.git_config_info:
+        scope: global
       become: false
       register: git_credential_config
-      changed_when: false
-      failed_when: false
 
     # gh auth setup-git writes the versioned binary path, which breaks on mise upgrades.
     # Using the mise shim (~/.local/share/mise/shims/gh) keeps the path stable.
     - name: Add git credential helper for GitHub using mise shim
-      ansible.builtin.command:
-        cmd: >
-          git config --global --add {{ item }}.helper
-          "!{{ user_home }}/.local/share/mise/shims/gh auth git-credential"
+      community.general.git_config:
+        name: "{{ item }}.helper"
+        scope: global
+        value: "!{{ user_home }}/.local/share/mise/shims/gh auth git-credential"
+        add_mode: add
       loop:
         - credential."https://github.com"
         - credential."https://gist.github.com"
       become: false
-      when: '"mise/shims/gh" not in git_credential_config.stdout'
-      changed_when: true
+      when: '"mise/shims/gh" not in (git_credential_config.config_values | string)'
 
   handlers:
     - name: Notify WSL restart
