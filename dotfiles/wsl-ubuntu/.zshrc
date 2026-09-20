@@ -106,6 +106,9 @@ source $ZSH/oh-my-zsh.sh
 # mise version manager
 eval "$(mise activate zsh)"
 
+# git wt
+eval "$(git wt --init zsh)"
+
 # Load custom zsh functions
 if [ -d ~/.config/zsh/functions ]; then
     for file in ~/.config/zsh/functions/*.zsh; do
