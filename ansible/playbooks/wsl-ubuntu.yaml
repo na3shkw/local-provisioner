@@ -50,6 +50,7 @@
       ansible.builtin.apt:
         name:
           - age
+          - apache2-utils
           - aria2
           - build-essential
           - ca-certificates
@@ -67,7 +68,9 @@
           - libx11-dev
           - libxkbfile-dev
           - lsb-release
+          - nfs-common
           - pdftk-java
+          - python3-debian
           - rename
           - shellcheck
           - stow
