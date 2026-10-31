@@ -68,6 +68,7 @@
           - libx11-dev
           - libxkbfile-dev
           - lsb-release
+          - ncdu
           - nfs-common
           - pdftk-java
           - python3-debian
