@@ -94,10 +94,17 @@
     # Git Installation (git-core PPA)
     # https://launchpad.net/~git-core/+archive/ubuntu/ppa
     # ========================================
+    # Fingerprint: https://api.launchpad.net/1.0/~git-core/+archive/ubuntu/ppa (signing_key_fingerprint)
     - name: Add git-core PPA
-      ansible.builtin.apt_repository:
-        repo: ppa:git-core/ppa
+      ansible.builtin.deb822_repository:
+        name: git-core-ppa
+        types: deb
+        uris: https://ppa.launchpadcontent.net/git-core/ppa/ubuntu
+        suites: "{{ ansible_facts['distribution_release'] }}"
+        components: main
+        signed_by: https://keyserver.ubuntu.com/pks/lookup?op=get&search=0xF911AB184317630C59970973E363C90F8F1B6217
         state: present
+        install_python_debian: true
 
     - name: Install git from PPA
       ansible.builtin.apt:
@@ -195,10 +202,16 @@
         mode: "0644"
 
     - name: Add mise repository
-      ansible.builtin.apt_repository:
-        repo: "deb [signed-by={{ keyrings_dir }}/mise-archive-keyring.pub arch=amd64] https://mise.jdx.dev/deb stable main"
+      ansible.builtin.deb822_repository:
+        name: mise
+        types: deb
+        uris: https://mise.jdx.dev/deb
+        suites: stable
+        components: main
+        architectures: amd64
+        signed_by: "{{ keyrings_dir }}/mise-archive-keyring.pub"
         state: present
-        filename: mise
+        install_python_debian: true
 
     - name: Install mise
       ansible.builtin.apt:
