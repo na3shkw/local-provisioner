@@ -11,8 +11,27 @@ rtk = "latest"
 pinact = "latest"
 actionlint = "latest"
 herdr = "latest"
-"npm:vercel" = "latest"
 "github:k1LoW/git-wt" = "latest"
 "github:tomasz-tomczyk/crit" = "latest"
 "npm:@immich/cli" = "latest"
 fzf = "latest"
+
+[tools."npm:vercel"]
+version = "latest"
+# 58.5.1 以降は vercel 本体も @vercel/* 依存も npm provenance がないため除外する
+# https://github.com/vercel/vercel/issues/17408
+trust_policy_excludes = ["vercel", "@vercel/*"]
+depends = ["nodejs"]
+# 代わりに vercel.com が公開している integrity と npm の値を照合する（本体のみ）
+postinstall = '''
+set -eu
+v="$MISE_TOOL_VERSION"
+expected=$(curl -fsSL "https://vercel.com/docs/cli/release-notes/npm/$v/integrity") || { echo "vercel@$v: integrity not published on vercel.com" >&2; exit 1; }
+expected=$(printf %s "$expected" | tr -d '[:space:]')
+actual=$(npm view "vercel@$v" dist.integrity)
+if [ "$expected" != "$actual" ]; then
+  echo "vercel@$v integrity mismatch: vercel.com=$expected npm=$actual" >&2
+  exit 1
+fi
+echo "vercel@$v integrity OK" >&2
+'''
