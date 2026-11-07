@@ -58,7 +58,6 @@
           - dnsutils
           - expect
           - ffmpeg
-          - git
           - gnupg
           - jq
           - libkrb5-dev
@@ -90,6 +89,22 @@
         path: "{{ keyrings_dir }}"
         state: directory
         mode: "0755"
+
+    # ========================================
+    # Git Installation (git-core PPA)
+    # https://launchpad.net/~git-core/+archive/ubuntu/ppa
+    # ========================================
+    - name: Add git-core PPA
+      ansible.builtin.apt_repository:
+        repo: ppa:git-core/ppa
+        state: present
+
+    - name: Install git from PPA
+      ansible.builtin.apt:
+        name: git
+        state: present
+        update_cache: true
+        cache_valid_time: 3600
 
     # ========================================
     # Docker Installation (Official Repository)
